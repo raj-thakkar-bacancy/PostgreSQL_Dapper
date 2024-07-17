@@ -1,0 +1,17 @@
+version: '3.4'
+
+services:
+  app.api.user:
+    image: postgresqldapper
+    container_name: app.api.user
+    build:
+      context: .
+      dockerfile: PostgreSQL_Dapper/Dockerfile
+
+  app.db.postgres:
+    image: postgres:14
+    container_name: app.db.postgres
+
+  app.db.postgres.admin:
+    image: dpage/pgadmin4:latest
+    container_name: app.db.postgres.admin

@@ -1,0 +1,47 @@
+version: '3.4'
+
+services:
+
+  app.api.user:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=https://+:443;http://+:80
+    ports:
+      - "80"
+      - "443"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+    depends_on:
+      - app.db.postgres
+
+  app.db.postgres:
+    ports:
+      - 5432:5432
+    volumes:
+     - ./postgres:/docker-entrypoint-initdb.d
+     - pgdata:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=Admin@123
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=User
+    depends_on:
+      - refresh-db
+
+  app.db.postgres.admin:
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - app.db.postgres
+
+  refresh-db:
+    image: postgres:latest
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    entrypoint: ["sh", "-c", "rm -rf /var/lib/postgresql/data/*"]
+
+volumes:
+  pgdata:
